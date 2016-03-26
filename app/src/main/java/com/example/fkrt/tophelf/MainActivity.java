@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private Intent intent;
+    private Bundle bundle;
 
     private SearchView searchView;
     private ListView searchList, placeList;
@@ -78,6 +79,10 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //bundle = getIntent().getExtras();
+        //String nn = bundle.getString("name");
+        //setTitle(nn);
 
         placeList = (ListView) findViewById(R.id.placelist);
         ListRowAdapter listRowAdapter = new ListRowAdapter(this, images, names, places, tags, ratings);
