@@ -74,10 +74,29 @@
                 android:layout_height="wrap_content" />
 
             <Button
+                android:id="@+id/selectImage"
+                android:text="   SELECT AN PROFILE IMAGE   "
+                android:textColor="#2D96C4"
+                android:onClick="onClick"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_style"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/profileImage"
+                android:visibility="visible"
+                android:layout_gravity="center_horizontal" />
+
+            <Button
                 android:id="@+id/register"
                 android:text="REGISTER"
                 android:textColor="#2D96C4"
-                android:onClick="onClick"
+                android:onClick="onClick2"
                 android:layout_marginTop="30dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -105,7 +124,7 @@
                     android:text="Privacy Policy"
                     android:id="@+id/privacypolicyTV"
                     android:clickable="true"
-                    android:onClick="onClick2"
+                    android:onClick="onClick3"
                     android:layout_below="@+id/clickingregisterTV"
                     android:layout_centerHorizontal="true"
                     android:textColor="#7cc3e1" />
