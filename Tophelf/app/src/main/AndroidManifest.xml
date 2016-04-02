@@ -3,10 +3,6 @@
     package="com.example.fkrt.tophelf">
 
     <uses-permission android:name="android.permission.INTERNET" />
-<<<<<<< HEAD
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-=======
->>>>>>> origin/oguzhan
 
     <application
         android:name=".HashKey"

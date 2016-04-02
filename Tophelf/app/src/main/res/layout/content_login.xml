@@ -112,7 +112,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Forgot your password?"
+        android:text="Forget your password?"
         android:id="@+id/forgetTV"
         android:clickable="true"
         android:onClick="onClick4"
