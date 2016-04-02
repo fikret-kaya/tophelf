@@ -1,22 +1,27 @@
 package com.example.fkrt.tophelf;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
+import android.util.Base64;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,6 +49,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -53,8 +59,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 
@@ -75,29 +83,6 @@ public class LoginActivity extends AppCompatActivity {
     private GoogleApiClient client;
 
     private CallbackManager mCallbackManager;
-    /*private FacebookCallback<LoginResult> mCallback = new FacebookCallback<LoginResult>() {
-        @Override
-        public void onSuccess(LoginResult loginResult) {
-            AccessToken accessToken = loginResult.getAccessToken();
-            Profile profile = Profile.getCurrentProfile();
-            if(profile != null){
-                mTextDetails.setText("Welcome " + profile.getName());
-                intent = new Intent(context, MainActivity.class);
-                intent.putExtra("name", profile.getName());
-                context.startActivity(intent);
-            }
-        }
-
-        @Override
-        public void onCancel() {
-
-        }
-
-        @Override
-        public void onError(FacebookException error) {
-
-        }
-    };*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,15 +92,27 @@ public class LoginActivity extends AppCompatActivity {
         mCallbackManager = CallbackManager.Factory.create();
         setContentView(R.layout.content_login);
         loginButton = (LoginButton)findViewById(R.id.login_button);
-        loginButton.setReadPermissions("user_friends", "email");
+        loginButton.setReadPermissions(Arrays.asList( "public_profile", "email", "user_friends"));
         loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 AccessToken accessToken = loginResult.getAccessToken();
                 Profile profile = Profile.getCurrentProfile();
-                if(profile != null){
+                if (profile != null) {
+
+                    try {
+                        handleRegister(profile);
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                     intent = new Intent(context, MainActivity.class);
                     intent.putExtra("name", profile.getName());
+
                     context.startActivity(intent);
                     finish();
                 }
@@ -161,6 +158,22 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    private void handleRegister(Profile p) throws ExecutionException, InterruptedException, IOException {
+
+        URL image_value = new URL("https://graph.facebook.com/"+p.getId()+"/picture" );/*
+        HttpURLConnection connection = (HttpURLConnection) image_value.openConnection();
+        connection.setDoInput(true);
+        connection.connect();
+        InputStream input = connection.getInputStream();
+        Bitmap profPict = BitmapFactory.decodeStream(input);
+       // Bitmap profPict = BitmapFactory.decodeStream(image_value.openConnection().getInputStream());*/
+        boolean b = new Registerconn().execute(p.getName(), "facebookPhone", "facebookMail",
+               "*facebookPass*", image_value).get();
+
+        //intent = new Intent(this, MainActivity.class);
+        //startActivity(intent);
+    }
+
     @Override
     protected void onResume(){
         super.onResume();
@@ -170,7 +183,9 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode,resultCode,data);
-        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            mCallbackManager.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
 
@@ -335,6 +350,106 @@ public class LoginActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+        }
+    }
+
+    class Registerconn extends AsyncTask<Object, Void, Boolean>
+    {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Boolean doInBackground(Object... params) {
+            String username = (String) params[0];
+            String phone = (String) params[1];
+            String email = (String) params[2];
+            String password = (String) params[3];
+            URL pic_url = (URL) params[4];
+
+            HttpURLConnection connection = null;
+            try {
+                connection = (HttpURLConnection) pic_url.openConnection();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            connection.setDoInput(true);
+            try {
+                connection.connect();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            InputStream input = null;
+            try {
+                input = connection.getInputStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Bitmap image = BitmapFactory.decodeStream(input);
+
+
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            image.compress(Bitmap.CompressFormat.PNG, 10, byteArrayOutputStream);
+            String encodedImage = Base64.encodeToString(byteArrayOutputStream.toByteArray(), Base64.DEFAULT);
+
+            try {
+                URL url = new URL("http://139.179.211.68:3000"); // 192.168.1.24 --- 10.0.2.2
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(10000);
+                conn.setConnectTimeout(15000);
+                conn.setRequestMethod("POST");
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.connect();
+
+                JSONObject jsonParam = new JSONObject();
+                jsonParam.put("type", "Register");
+                jsonParam.put("username", username);
+                jsonParam.put("phone", phone);
+                jsonParam.put("email", email);
+                jsonParam.put("pass", password);
+                jsonParam.put("image", encodedImage);
+                jsonParam.put("rating", 0);
+
+                OutputStream os = conn.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(os, "UTF-8"));
+                writer.write(jsonParam.toString()); // URLEncoder.encode(jsonParam.toString(), "UTF-8")
+                writer.flush();
+                writer.close();
+                os.close();
+
+                int statusCode = conn.getResponseCode();
+                InputStream is = null;
+
+                if (statusCode >= 200 && statusCode < 400) {
+                    // zzzzzzzz
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent);
+                    return true;
+                }
+                else {
+                    is = conn.getErrorStream();
+                }
+
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             return false;
         }
 
