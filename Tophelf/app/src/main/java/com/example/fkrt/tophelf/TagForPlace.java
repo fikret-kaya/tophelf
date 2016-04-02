@@ -1,21 +1,16 @@
 package com.example.fkrt.tophelf;
 
-import android.app.SearchManager;
-import android.app.SearchableInfo;
-import android.content.ClipData;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.Build;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.view.MenuItemCompat;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.SearchEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -26,28 +21,26 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.util.List;
-import java.util.Objects;
-
-public class MainActivity extends AppCompatActivity
+public class TagForPlace extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private Intent intent;
-    private Bundle bundle;
-    private String user_name = "Oguzhan YILDIZ";
-    //private Bitmap profilePic = images[1];
 
+    Bundle bundle;
+    private RelativeLayout inner0;
     private SearchView searchView;
-    private ListView searchList, placeList;
+    private TextView place, tag, rating, placeInfoV;
+    private Button placeInfo, comments, map;
+    private ListView commentsV, searchList;
+    private ImageView mapV;
 
     String[] temp = {"#ankara", "#antalya", "#adana", "#bursa", "#istanbul", "#izmir", "#mersin", "#malatya", "#rize", "#erzurum"};
     String[] names = {"Name Surname 1", "Name Surname 2", "Name Surname 3", "Name Surname 4", "Name Surname 5", "Name Surname 6", "Name Surname 7", "Name Surname 8", "Name Surname 9", "Name Surname 10"};
@@ -55,14 +48,22 @@ public class MainActivity extends AppCompatActivity
     String[] tags = {"Tag 1", "Tag 2", "Tag 3", "Tag 4", "Tag 5", "Tag 6", "Tag 7", "Tag 8", "Tag 9", "Tag 10"};
     String[] ratings = {"3/5", "4/5", "5/5", "4/5", "3/5", "3/5", "1/5", "4/5", "2/5", "4/5"};
     int[] images = {R.drawable.logo, R.drawable.logo, R.drawable.logo, R.drawable.logo, R.drawable.logo, R.drawable.logo,
-                                                        R.drawable.logo, R.drawable.logo, R.drawable.logo, R.drawable.logo};
+            R.drawable.logo, R.drawable.logo, R.drawable.logo, R.drawable.logo};
 
     ArrayAdapter<String> arrayAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        bundle = getIntent().getExtras();
+        String nn = bundle.getString("name");
+        String pp = bundle.getString("place");
+        String tt = bundle.getString("tag");
+        String rr = bundle.getString("rating");
+        setTitle(nn);
+
+        setContentView(R.layout.activity_tag_for_place);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -84,12 +85,26 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        bundle = getIntent().getExtras();
-        user_name = bundle.getString("name");
+        inner0 = (RelativeLayout) findViewById(R.id.inner0);
 
-        placeList = (ListView) findViewById(R.id.placelist);
-        ListRowAdapter listRowAdapter = new ListRowAdapter(this, images, names, places, tags, ratings);
-        placeList.setAdapter(listRowAdapter);
+        place = (TextView) findViewById(R.id.place);
+        place.setText(pp);
+        tag = (TextView) findViewById(R.id.tag);
+        tag.setText(tt);
+        rating = (TextView) findViewById(R.id.rating);
+        rating.setText("Overall : " + rr);
+
+        placeInfo = (Button) findViewById(R.id.placeinfo);
+        comments = (Button) findViewById(R.id.comments);
+        comments.setTextColor(Color.parseColor("#2D96C4"));
+        comments.setTypeface(null, Typeface.BOLD);
+        map = (Button) findViewById(R.id.map);
+
+        placeInfoV = (TextView) findViewById(R.id.placeinfoV);
+        commentsV = (ListView) findViewById(R.id.commentsV);
+        CommentsListRowAdapter listRowAdapter = new CommentsListRowAdapter(this, images, names, places, tags, ratings);
+        commentsV.setAdapter(listRowAdapter);
+        mapV = (ImageView) findViewById(R.id.mapV);
 
         arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, temp);
         searchList = (ListView) findViewById(R.id.searchlist);
@@ -100,7 +115,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public boolean onQueryTextSubmit(String query) {
                 searchList.setVisibility(View.INVISIBLE);
-                placeList.setVisibility(View.VISIBLE);
+                inner0.setVisibility(View.VISIBLE);
                 return false;
             }
 
@@ -108,23 +123,67 @@ public class MainActivity extends AppCompatActivity
             public boolean onQueryTextChange(String newText) {
 
                 if (newText != null) {
-                    placeList.setVisibility(View.INVISIBLE);
                     searchList.setVisibility(View.VISIBLE);
+                    inner0.setVisibility(View.INVISIBLE);
                 } else {
                     searchList.setVisibility(View.INVISIBLE);
-                    placeList.setVisibility(View.VISIBLE);
+                    inner0.setVisibility(View.VISIBLE);
                 }
                 arrayAdapter.getFilter().filter(newText);
                 return false;
             }
         });
 
-        //View hView =  navigationView.inflateHeaderView(R.layout.nav_header_main);
-        ImageView imgvw = (ImageView)navigationView.findViewById(R.id.imageView);
-        TextView name = (TextView)navigationView.findViewById(R.id.name);
-        //imgvw.setImageBitmap(profilePic);
-        //name.setText(user_name);
+    }
 
+    // Place Info
+    public void onClick(View v) {
+        placeInfoV.setVisibility(View.VISIBLE);
+        placeInfo.setEnabled(false);
+        commentsV.setVisibility(View.INVISIBLE);
+        comments.setEnabled(true);
+        mapV.setVisibility(View.INVISIBLE);
+        map.setEnabled(true);
+
+        placeInfo.setTextColor(Color.parseColor("#2D96C4"));
+        placeInfo.setTypeface(null, Typeface.BOLD);
+        comments.setTextColor(Color.parseColor("#7cc3e1"));
+        comments.setTypeface(null, Typeface.NORMAL);
+        map.setTextColor(Color.parseColor("#7cc3e1"));
+        map.setTypeface(null, Typeface.NORMAL);
+    }
+    // Comments
+    public void onClick2(View v) {
+        placeInfoV.setVisibility(View.INVISIBLE);
+        placeInfo.setEnabled(true);
+        commentsV.setVisibility(View.VISIBLE);
+        comments.setEnabled(false);
+        mapV.setVisibility(View.INVISIBLE);
+        map.setEnabled(true);
+
+        placeInfo.setTextColor(Color.parseColor("#7cc3e1"));
+        placeInfo.setTypeface(null, Typeface.NORMAL);
+        comments.setTextColor(Color.parseColor("#2D96C4"));
+        comments.setTypeface(null, Typeface.BOLD);
+        map.setTextColor(Color.parseColor("#7cc3e1"));
+        map.setTypeface(null, Typeface.NORMAL);
+
+    }
+    // Map
+    public void onClick3(View v) {
+        placeInfoV.setVisibility(View.INVISIBLE);
+        placeInfo.setEnabled(true);
+        commentsV.setVisibility(View.INVISIBLE);
+        comments.setEnabled(true);
+        mapV.setVisibility(View.VISIBLE);
+        map.setEnabled(false);
+
+        placeInfo.setTextColor(Color.parseColor("#7cc3e1"));
+        placeInfo.setTypeface(null, Typeface.NORMAL);
+        comments.setTextColor(Color.parseColor("#7cc3e1"));
+        comments.setTypeface(null, Typeface.NORMAL);
+        map.setTextColor(Color.parseColor("#2D96C4"));
+        map.setTypeface(null, Typeface.BOLD);
     }
 
     @Override
@@ -140,7 +199,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.tag_for_place, menu);
         return true;
     }
 
@@ -186,7 +245,7 @@ public class MainActivity extends AppCompatActivity
     }
 }
 
-class ListRowAdapter extends ArrayAdapter<String> {
+class CommentsListRowAdapter extends ArrayAdapter<String> {
 
     Intent intent;
 
@@ -196,7 +255,7 @@ class ListRowAdapter extends ArrayAdapter<String> {
     String[] places;
     String[] tags;
     String[] ratings;
-    ListRowAdapter(Context context, int images[], String[] names, String[] places, String[] tags, String[] ratings) {
+    CommentsListRowAdapter(Context context, int images[], String[] names, String[] places, String[] tags, String[] ratings) {
         super(context, R.layout.single_row, R.id.place, places);
         this.context = context;
         this.images = images;
