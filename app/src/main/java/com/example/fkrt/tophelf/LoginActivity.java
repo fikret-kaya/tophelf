@@ -59,11 +59,7 @@ import java.util.concurrent.ExecutionException;
 
 
 public class LoginActivity extends AppCompatActivity {
-<<<<<<< Updated upstream
-    //deneme123
-=======
-    //deneme456
->>>>>>> Stashed changes
+
     private TextView registerTV;
     private EditText email,password;
     Intent intent;
