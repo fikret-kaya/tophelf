@@ -1,9 +1,11 @@
 package com.example.fkrt.tophelf;
 
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -14,10 +16,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
@@ -50,10 +55,12 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.concurrent.ExecutionException;
 
 public class LoginActivity extends AppCompatActivity {
 
     private TextView registerTV;
+    private EditText email,password;
     Intent intent;
     Context context = this;
 
@@ -167,14 +174,41 @@ public class LoginActivity extends AppCompatActivity {
 
 
     // login now
-    public void onClick(View v) throws IOException, JSONException {
+    public void onClick(View v) throws IOException, JSONException, ExecutionException, InterruptedException {
 
-       // new LoginConn().execute();
+        email = (EditText) findViewById(R.id.email);
+        password = (EditText) findViewById(R.id.password);
 
-        intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        if(email.getText().toString().equals("") || password.getText().toString().equals("")) {
+            AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
+            alertDialog.setTitle("Warning!");
+            alertDialog.setMessage("Email or Password cannot be empty!");
+            alertDialog.setIcon(R.drawable.tophelf);
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            alertDialog.show();
+        } else {
+            boolean b = new LoginConn().execute(email.getText().toString(), password.getText().toString()).get();
+            if(!b) {
+                AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
+                alertDialog.setTitle("Warning!");
+                alertDialog.setMessage("Something went wrong, please try again!");
+                alertDialog.setIcon(R.drawable.tophelf);
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                alertDialog.show();
+            }
+        }
+
     }
-
     // register now
     public void onClick2(View v) {
         intent = new Intent(this, RegisterActivity.class);
@@ -184,8 +218,35 @@ public class LoginActivity extends AppCompatActivity {
 
     // forget password
     public void onClick4(View v) {
-        intent = new Intent(this, RegisterActivity.class);
-        startActivity(intent);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle("Password Assistance");
+        alertDialog.setMessage("Please enter registered email address");
+        alertDialog.setIcon(R.drawable.tophelf);
+
+        final EditText editText = new EditText(this);
+        editText.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        alertDialog.setView(editText);
+
+        // Submit button
+        alertDialog.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String email = editText.getText().toString();
+                Toast.makeText(getApplicationContext(), email, Toast.LENGTH_LONG).show();
+            }
+        });
+
+        // Cancel button
+        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog alertDialog1 = alertDialog.create();
+        alertDialog1.show();
+
     }
 
     @Override
@@ -201,12 +262,21 @@ public class LoginActivity extends AppCompatActivity {
         profileTracker.stopTracking();
     }
 
-    class LoginConn extends AsyncTask<Void, Void, Void> {
+
+    class LoginConn extends AsyncTask<String, Void, Boolean>
+    {
         @Override
-        protected Void doInBackground(Void... params) {
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            String email = params[0];
+            String password = params[1];
 
             try {
-                URL url = new URL("http://192.168.1.25:3000");
+                URL url = new URL("http://139.179.211.68:3000/"); // 192.168.1.24 --- 10.0.2.2 --- 139.179.211.68
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setReadTimeout(10000);
                 conn.setConnectTimeout(15000);
@@ -219,13 +289,13 @@ public class LoginActivity extends AppCompatActivity {
 
                 JSONObject jsonParam = new JSONObject();
                 jsonParam.put("type", "UserCheck");
-                jsonParam.put("email", "fikret_kya@hotmail.com");
-                jsonParam.put("pass", "12345678");
+                jsonParam.put("email", email);
+                jsonParam.put("pass", password);
 
                 OutputStream os = conn.getOutputStream();
                 BufferedWriter writer = new BufferedWriter(
                         new OutputStreamWriter(os, "UTF-8"));
-                writer.write(URLEncoder.encode(jsonParam.toString(), "UTF-8"));
+                writer.write(jsonParam.toString()); // URLEncoder.encode(jsonParam.toString(), "UTF-8")
                 writer.flush();
                 writer.close();
                 os.close();
@@ -239,26 +309,23 @@ public class LoginActivity extends AppCompatActivity {
                     BufferedReader rd = new BufferedReader(new InputStreamReader(is));
                     String line, responseString;
                     StringBuffer response = new StringBuffer();
-                    while ((line = rd.readLine()) != null) {
+                    while((line = rd.readLine()) != null) {
                         response.append(line);
-                        response.append('\r');
                     }
                     rd.close();
                     responseString = response.toString();
-                } else {
+                    responseString =responseString.substring(1,response.length()-1);
+
+                    jsonParam = new JSONObject(responseString);
+                    int u_id = Integer.parseInt(jsonParam.getString("u_id"));
+
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent);
+                    return true;
+                }
+                else {
                     is = conn.getErrorStream();
                 }
-
-                /*InputStream is = conn.getInputStream();
-                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-                String line, responseString;
-                StringBuffer response = new StringBuffer();
-                while((line = rd.readLine()) != null) {
-                    response.append(line);
-                    response.append('\r');
-                }
-                rd.close();
-                responseString = response.toString();*/
 
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
@@ -267,9 +334,14 @@ public class LoginActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            return false;
+        }
 
-            return null;
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
         }
     }
+
 
 }
