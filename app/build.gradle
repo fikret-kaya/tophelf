@@ -10,11 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.fkrt.tophelf"
-<<<<<<< HEAD
         minSdkVersion 16
-=======
-        minSdkVersion 15
->>>>>>> origin/oguzhan
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"

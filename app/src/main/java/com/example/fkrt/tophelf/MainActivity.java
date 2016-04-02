@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         bundle = getIntent().getExtras();
-        user_name = bundle.getString("name");
+        //user_name = bundle.getString("name");
 
         placeList = (ListView) findViewById(R.id.placelist);
         ListRowAdapter listRowAdapter = new ListRowAdapter(this, images, names, places, tags, ratings);

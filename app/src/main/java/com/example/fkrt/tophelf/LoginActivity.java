@@ -1,22 +1,15 @@
 package com.example.fkrt.tophelf;
 
 import android.app.ActionBar;
-<<<<<<< HEAD
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-=======
-import android.app.Fragment;
-import android.app.FragmentTransaction;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
->>>>>>> origin/oguzhan
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -30,24 +23,6 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.concurrent.ExecutionException;
 
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
@@ -80,16 +55,12 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.concurrent.ExecutionException;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private Intent intent;
-
     private TextView registerTV;
-<<<<<<< HEAD
-    private EditText email, password;
-
-=======
+    private EditText email,password;
     Intent intent;
     Context context = this;
 
@@ -126,7 +97,6 @@ public class LoginActivity extends AppCompatActivity {
 
         }
     };*/
->>>>>>> origin/oguzhan
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -204,7 +174,6 @@ public class LoginActivity extends AppCompatActivity {
 
 
     // login now
-<<<<<<< HEAD
     public void onClick(View v) throws IOException, JSONException, ExecutionException, InterruptedException {
 
         email = (EditText) findViewById(R.id.email);
@@ -227,7 +196,7 @@ public class LoginActivity extends AppCompatActivity {
             if(!b) {
                 AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
                 alertDialog.setTitle("Warning!");
-                alertDialog.setMessage("Invalid email or password!");
+                alertDialog.setMessage("Something went wrong, please try again!");
                 alertDialog.setIcon(R.drawable.tophelf);
                 alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK", new DialogInterface.OnClickListener() {
                     @Override
@@ -239,16 +208,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
 
-=======
-    public void onClick(View v) throws IOException, JSONException {
-
-       // new LoginConn().execute();
-
-        intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
->>>>>>> origin/oguzhan
     }
-
     // register now
     public void onClick2(View v) {
         intent = new Intent(this, RegisterActivity.class);
@@ -289,6 +249,20 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        Profile profile = Profile.getCurrentProfile();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        accessTokenTracker.stopTracking();
+        profileTracker.stopTracking();
+    }
+
+
     class LoginConn extends AsyncTask<String, Void, Boolean>
     {
         @Override
@@ -302,7 +276,7 @@ public class LoginActivity extends AppCompatActivity {
             String password = params[1];
 
             try {
-                URL url = new URL("http://192.168.1.24:3000"); // 192.168.1.24 --- 10.0.2.2
+                URL url = new URL("http://139.179.211.68:3000/"); // 192.168.1.24 --- 10.0.2.2 --- 139.179.211.68
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setReadTimeout(10000);
                 conn.setConnectTimeout(15000);
@@ -369,88 +343,5 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        Profile profile = Profile.getCurrentProfile();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        accessTokenTracker.stopTracking();
-        profileTracker.stopTracking();
-    }
-
-    class LoginConn extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-
-            try {
-                URL url = new URL("http://192.168.1.25:3000");
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setReadTimeout(10000);
-                conn.setConnectTimeout(15000);
-                conn.setRequestMethod("POST");
-                conn.setDoInput(true);
-                conn.setDoOutput(true);
-
-                conn.setRequestProperty("Content-Type", "application/json");
-                conn.connect();
-
-                JSONObject jsonParam = new JSONObject();
-                jsonParam.put("type", "UserCheck");
-                jsonParam.put("email", "fikret_kya@hotmail.com");
-                jsonParam.put("pass", "12345678");
-
-                OutputStream os = conn.getOutputStream();
-                BufferedWriter writer = new BufferedWriter(
-                        new OutputStreamWriter(os, "UTF-8"));
-                writer.write(URLEncoder.encode(jsonParam.toString(), "UTF-8"));
-                writer.flush();
-                writer.close();
-                os.close();
-
-                int statusCode = conn.getResponseCode();
-                InputStream is = null;
-
-                if (statusCode >= 200 && statusCode < 400) {
-                    // Create an InputStream in order to extract the response object
-                    is = conn.getInputStream();
-                    BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-                    String line, responseString;
-                    StringBuffer response = new StringBuffer();
-                    while ((line = rd.readLine()) != null) {
-                        response.append(line);
-                        response.append('\r');
-                    }
-                    rd.close();
-                    responseString = response.toString();
-                } else {
-                    is = conn.getErrorStream();
-                }
-
-                /*InputStream is = conn.getInputStream();
-                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-                String line, responseString;
-                StringBuffer response = new StringBuffer();
-                while((line = rd.readLine()) != null) {
-                    response.append(line);
-                    response.append('\r');
-                }
-                rd.close();
-                responseString = response.toString();*/
-
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-    }
 
 }

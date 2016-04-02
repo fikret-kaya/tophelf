@@ -80,7 +80,7 @@ public class RegisterActivity extends AppCompatActivity {
         if(name.getText().toString().equals("") || surname.getText().toString().equals("") ||
                 phone.getText().toString().equals("") || email.getText().toString().equals("") ||
                 password.getText().toString().equals("") || repassword.getText().toString().equals("")
-                                                                                    || image == null) {
+                || image == null) {
 
             AlertDialog alertDialog = new AlertDialog.Builder(RegisterActivity.this).create();
             alertDialog.setTitle("Warning!");
@@ -109,8 +109,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         } else {
             boolean b = new Registerconn().execute(name.getText().toString() + " " + surname.getText().toString(),
-                                                        phone.getText().toString(), email.getText().toString(),
-                                                            password.getText().toString(), image).get();
+                    phone.getText().toString(), email.getText().toString(),
+                    password.getText().toString(), image).get();
             if(!b) {
                 AlertDialog alertDialog = new AlertDialog.Builder(RegisterActivity.this).create();
                 alertDialog.setTitle("Warning!");
@@ -147,16 +147,16 @@ public class RegisterActivity extends AppCompatActivity {
                     ImageView profileImage = (ImageView) findViewById(R.id.profileImage);
                     profileImage.setImageURI(uri);
                     image = ((BitmapDrawable) profileImage.getDrawable()).getBitmap();
-
+ 
                     /*String[] projection = {MediaStore.Images.Media.DATA};
-
+ 
                     Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
                     cursor.moveToFirst();
-
+ 
                     int columnIndex = cursor.getColumnIndex(projection[0]);
                     String imagePath = cursor.getString(columnIndex);
                     cursor.close();
-
+ 
                     Bitmap bitmapImage = BitmapFactory.decodeFile(imagePath);
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
