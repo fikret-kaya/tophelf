@@ -58,7 +58,7 @@ import java.net.URLEncoder;
 import java.util.concurrent.ExecutionException;
 
 public class LoginActivity extends AppCompatActivity {
-
+    //deneme
     private TextView registerTV;
     private EditText email,password;
     Intent intent;
