@@ -57,6 +57,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.concurrent.ExecutionException;
 
+
 public class LoginActivity extends AppCompatActivity {
 
     private TextView registerTV;
@@ -262,7 +263,7 @@ public class LoginActivity extends AppCompatActivity {
         profileTracker.stopTracking();
     }
 
-
+    //  Server connectıon
     class LoginConn extends AsyncTask<String, Void, Boolean>
     {
         @Override
