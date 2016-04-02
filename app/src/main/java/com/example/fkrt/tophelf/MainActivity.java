@@ -1,17 +1,23 @@
 package com.example.fkrt.tophelf;
 
+import android.Manifest;
 import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -55,7 +61,7 @@ public class MainActivity extends AppCompatActivity
     String[] tags = {"Tag 1", "Tag 2", "Tag 3", "Tag 4", "Tag 5", "Tag 6", "Tag 7", "Tag 8", "Tag 9", "Tag 10"};
     String[] ratings = {"3/5", "4/5", "5/5", "4/5", "3/5", "3/5", "1/5", "4/5", "2/5", "4/5"};
     int[] images = {R.drawable.logo, R.drawable.logo, R.drawable.logo, R.drawable.logo, R.drawable.logo, R.drawable.logo,
-                                                        R.drawable.logo, R.drawable.logo, R.drawable.logo, R.drawable.logo};
+            R.drawable.logo, R.drawable.logo, R.drawable.logo, R.drawable.logo};
 
     ArrayAdapter<String> arrayAdapter;
 
@@ -70,8 +76,22 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                intent = new Intent(view.getContext(), VoteActivity.class);
-                startActivity(intent);
+
+                GPSTracker gpsTracker = new GPSTracker(MainActivity.this);
+
+                if(gpsTracker.canGetLocation()) {
+                    double latitude = gpsTracker.getLatitude();
+                    double longitude = gpsTracker.getLongitude();
+
+                    intent = new Intent(view.getContext(), VoteActivity.class);
+                    intent.putExtra("latitude", latitude);
+                    intent.putExtra("longitude", longitude);
+                    startActivity(intent);
+
+                } else {
+                    gpsTracker.showSettingsAlert();
+                }
+
             }
         });
 
