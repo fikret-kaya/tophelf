@@ -75,7 +75,7 @@ public class VoteActivity extends AppCompatActivity {
             String rating = (String) params[6];
 
             try {
-                URL url = new URL("http://139.179.211.68:3000"); // 192.168.1.24 --- 10.0.2.2
+                URL url = new URL("http://139.179.55.19:3000"); // 192.168.1.24 --- 10.0.2.2
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setReadTimeout(10000);
                 conn.setConnectTimeout(15000);
@@ -87,13 +87,13 @@ public class VoteActivity extends AppCompatActivity {
                 conn.connect();
 
                 JSONObject jsonParam = new JSONObject();
-                jsonParam.put("type", "Vote");
-                jsonParam.put("u_id", u_id);
+                jsonParam.put("type", "Place");
+                //jsonParam.put("u_id", u_id);
                 jsonParam.put("location", latitude+"-"+longitude);
                 jsonParam.put("placename", placeName);
-                jsonParam.put("tagname", tagName);
-                jsonParam.put("comment", comment);
-                jsonParam.put("rating", rating);
+                //jsonParam.put("tagname", tagName);
+                //jsonParam.put("comment", comment);
+                //jsonParam.put("rating", rating);
 
                 OutputStream os = conn.getOutputStream();
                 BufferedWriter writer = new BufferedWriter(
@@ -107,12 +107,74 @@ public class VoteActivity extends AppCompatActivity {
                 InputStream is = null;
 
                 if (statusCode >= 200 && statusCode < 400) {
-                    // zzzzzzzz
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    startActivity(intent);
-                    return true;
-                }
-                else {
+                    conn.disconnect();
+
+                    url = new URL("http://139.179.55.19:3000"); // 192.168.1.24 --- 10.0.2.2
+                    HttpURLConnection conn2 = (HttpURLConnection) url.openConnection();
+                    conn2.setReadTimeout(10000);
+                    conn2.setConnectTimeout(15000);
+                    conn2.setRequestMethod("POST");
+                    conn2.setDoInput(true);
+                    conn2.setDoOutput(true);
+
+                    conn2.setRequestProperty("Content-Type", "application/json");
+                    conn2.connect();
+
+                    jsonParam = new JSONObject();
+                    jsonParam.put("type", "Tag");
+                    jsonParam.put("tagname", tagName);
+
+                    OutputStream os2 = conn2.getOutputStream();
+                    BufferedWriter writer2 = new BufferedWriter(
+                            new OutputStreamWriter(os2, "UTF-8"));
+                    writer2.write(jsonParam.toString()); // URLEncoder.encode(jsonParam.toString(), "UTF-8")
+                    writer2.flush();
+                    writer2.close();
+                    os2.close();
+
+                    statusCode = conn2.getResponseCode();
+                    is = null;
+
+                    if (statusCode >= 200 && statusCode < 400) {
+                        conn2.disconnect();
+
+                        url = new URL("http://139.179.55.19:3000"); // 192.168.1.24 --- 10.0.2.2
+                        HttpURLConnection conn3 = (HttpURLConnection) url.openConnection();
+                        conn3.setReadTimeout(10000);
+                        conn3.setConnectTimeout(15000);
+                        conn3.setRequestMethod("POST");
+                        conn3.setDoInput(true);
+                        conn3.setDoOutput(true);
+
+                        conn3.setRequestProperty("Content-Type", "application/json");
+                        conn3.connect();
+
+                        jsonParam = new JSONObject();
+                        jsonParam.put("type", "Comment");
+                        jsonParam.put("comment", comment);
+
+                        OutputStream os3 = conn3.getOutputStream();
+                        BufferedWriter writer3 = new BufferedWriter(
+                                new OutputStreamWriter(os3, "UTF-8"));
+                        writer3.write(jsonParam.toString()); // URLEncoder.encode(jsonParam.toString(), "UTF-8")
+                        writer3.flush();
+                        writer3.close();
+                        os3.close();
+
+                        statusCode = conn3.getResponseCode();
+                        is = null;
+
+                        if (statusCode >= 200 && statusCode < 400) {
+                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                            startActivity(intent);
+                            return true;
+                        } else {
+                            is = conn3.getErrorStream();
+                        }
+                    } else {
+                        is = conn2.getErrorStream();
+                    }
+                } else {
                     is = conn.getErrorStream();
                 }
 

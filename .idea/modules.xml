@@ -2,12 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-<<<<<<< HEAD
       <module fileurl="file://$PROJECT_DIR$/TophelfSourceTree.iml" filepath="$PROJECT_DIR$/TophelfSourceTree.iml" />
-=======
->>>>>>> cbd1230fa350d6e174eed575531d8baeacb43e4a
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/sourceTreeTophelf.iml" filepath="$PROJECT_DIR$/sourceTreeTophelf.iml" />
     </modules>
   </component>
 </project>
