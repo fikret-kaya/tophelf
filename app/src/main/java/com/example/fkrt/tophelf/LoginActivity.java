@@ -76,6 +76,7 @@ public class LoginActivity extends AppCompatActivity {
     private AccessTokenTracker accessTokenTracker;
     private ProfileTracker profileTracker;
     private LoginButton loginButton;
+    private AccessToken accessToken;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -142,6 +143,14 @@ public class LoginActivity extends AppCompatActivity {
             }
         };
 
+        accessToken = AccessToken.getCurrentAccessToken();
+        // If already logged in show the home view
+        if (accessToken != null) {//<- IMPORTANT
+            Intent intent = new Intent(this,MainActivity.class);
+            startActivity(intent);
+            finish();//<- IMPORTANT
+        }
+
         profileTracker = new ProfileTracker() {
             @Override
             protected void onCurrentProfileChanged(Profile oldProfile, Profile newProfile) {
@@ -168,6 +177,7 @@ public class LoginActivity extends AppCompatActivity {
 
         //intent = new Intent(this, MainActivity.class);
         //startActivity(intent);
+        //finish();
     }
 
     @Override

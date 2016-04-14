@@ -171,7 +171,7 @@ public class TagForPlace extends AppCompatActivity
     }
     // Map
     public void onClick3(View v) {
-        placeInfoV.setVisibility(View.INVISIBLE);
+       /* placeInfoV.setVisibility(View.INVISIBLE);
         placeInfo.setEnabled(true);
         commentsV.setVisibility(View.INVISIBLE);
         comments.setEnabled(true);
@@ -183,7 +183,10 @@ public class TagForPlace extends AppCompatActivity
         comments.setTextColor(Color.parseColor("#7cc3e1"));
         comments.setTypeface(null, Typeface.NORMAL);
         map.setTextColor(Color.parseColor("#2D96C4"));
-        map.setTypeface(null, Typeface.BOLD);
+        map.setTypeface(null, Typeface.BOLD);*/
+
+        intent = new Intent(this, MapsActivity.class);
+        startActivity(intent);
     }
 
     @Override
